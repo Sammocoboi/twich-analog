@@ -52,7 +52,7 @@ def get_db():
         yield db
 
 
-DbSession = Annotated(Session,Depends(get_db))
+DbSession = Annotated[Session,Depends(get_db)]
 
 
 #Shecmy 
@@ -90,3 +90,37 @@ def create_acces_token(user_id:int)->str:
         algorithm=ALGORITHM
     )
     return token
+
+# проверка авторизации пользователя
+# 
+
+def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:DbSession)-> UserORM:
+
+    error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="недействительный токен или просрочен",
+        headers={"WWW-Authenticate":"Bearer"}
+    )
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+            options={"require":["sub","exp"]}
+        )
+        user_id = int(payload["sub"])
+
+    except (InvalidTokenError,ValueError,TypeError):
+        raise error from None
+
+    user = db.get(UserORM,user_id)
+
+    if user is None:
+        return error
+
+    return user 
+
+Cuerrentuser = Annotated[UserORM,Depends(get_cerrent_user)]
+
+
+
