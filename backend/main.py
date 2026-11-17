@@ -15,6 +15,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import (Mapped,Session,mapped_column,DeclarativeBase,sessionmaker)
 
 
+
+load_dotenv()
 SECRET_KEY = os.environ['JWT_SECRET_KEY']
 ALGORITHM="H256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 
@@ -57,7 +59,7 @@ DbSession = Annotated[Session,Depends(get_db)]
 
 #Shecmy 
 class UserCreate(BaseModel):
-    emeil:EmailStr
+    email:EmailStr
     password:str = Field(
         min_length=8,
         max_length=128
@@ -168,10 +170,8 @@ def register(data:UserCreate, db:DbSession):
     return new_user
 
 
-@app.post(
-    "/login",respose_model=TokenResponse
-)
-def login(form:Annotated[OAuth2PasswordRequestForm,Depends()],db:Session):
+@app.post("/login/", response_model=TokenResponse)
+def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
     email = form.username.strip().lower()
     user = db.scalar(select(UserORM).where(UserORM.email==email))
 
