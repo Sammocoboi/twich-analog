@@ -142,7 +142,7 @@ def register(data:UserCreate, db:DbSession):
     email = str(data.email).strip().lower()
 
     existing_user = db.scalar(select(UserORM).where(UserORM.email==email))
-    if  existing_user is not None:
+    if existing_user is not None:
         raise HTTPException(
             status_code=409,
             detail="email сущ"
@@ -188,3 +188,11 @@ def login(form:Annotated[OAuth2PasswordRequestForm,Depends()],db:Session):
         access_toke=token,
         token_type="bearer"
     )
+
+
+@app.get(
+    "/me",
+    response_model=UserResponse
+)
+def get_profile(current_user:Cuerrentuser):
+    return current_user
