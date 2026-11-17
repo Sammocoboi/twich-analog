@@ -141,11 +141,28 @@ def home():
 def register(data:UserCreate,db:DbSession):
     email = str(data.email).strip().lower()
 
-    existing_user = db.scalar(select(User).where(User.email==email))
+    existing_user = db.scalar(select(UserORM).where(UserORM.email==email))
     if  existing_user is not None:
-        raise HTTPExeption(
+        raise HTTPException(
             status_code=409,
             detail="email сущ"
         )
     
-    has
+    hashed_password=password_hash.hash(data.password)
+    new_user = UserORM(
+        email=email,
+        hashed_password = hashed_password
+    )
+    db.add(new_user)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Email есть"
+        )from None
+
+    db.refresh(new_user)
+
+    return new_user
