@@ -122,5 +122,30 @@ def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:DbSession)-> 
 
 Cuerrentuser = Annotated[UserORM,Depends(get_cerrent_user)]
 
+@asynccontextmanager
+async def lifespan(app:FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
 
 
+
+
+app = FastAPI(title="Authenfication API",version="1.0.0",lifespan=lifespan)
+
+
+@app.get("/")
+def home():
+    return "fsdsfd"
+
+@app.post("/register",response_model=UserResponse,status_code=status.HTTP_201_CREATED)
+def register(data:UserCreate,db:DbSession):
+    email = str(data.email).strip().lower()
+
+    existing_user = db.scalar(select(User).where(User.email==email))
+    if  existing_user is not None:
+        raise HTTPExeption(
+            status_code=409,
+            detail="email сущ"
+        )
+    
+    has
