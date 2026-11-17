@@ -138,7 +138,7 @@ def home():
     return "fsdsfd"
 
 @app.post("/register",response_model=UserResponse,status_code=status.HTTP_201_CREATED)
-def register(data:UserCreate,db:DbSession):
+def register(data:UserCreate, db:DbSession):
     email = str(data.email).strip().lower()
 
     existing_user = db.scalar(select(UserORM).where(UserORM.email==email))
@@ -166,3 +166,25 @@ def register(data:UserCreate,db:DbSession):
     db.refresh(new_user)
 
     return new_user
+
+
+@app.post(
+    "/login",respose_model=TokenResponse
+)
+def login(form:Annotated[OAuth2PasswordRequestForm,Depends()],db:Session):
+    email = form.username.strip().lower()
+    user = db.scalar(select(UserORM).where(UserORM.email==email))
+
+    if user is None or not password_hash.verify(form.password,user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="неверный логин или пароль",
+            headers={"WWW-Authenticate":"Bearer"}
+        )
+
+    token = create_acces_token(user.id)
+
+    return TokenResponse(
+        access_toke=token,
+        token_type="bearer"
+    )
