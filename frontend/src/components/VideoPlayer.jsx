@@ -239,7 +239,8 @@ export default function VideoPlayer({ path, protocol, streamOnline, onStatusChan
                   )
                 ) : (
                   <>
-                    Запустите трансляцию в OBS на путь <code>{path}</code> — плеер подключится сам.
+                    Запустите трансляцию на путь <code>{path}</code> — из браузера или OBS — плеер
+                    подключится сам.
                   </>
                 )}
               </p>

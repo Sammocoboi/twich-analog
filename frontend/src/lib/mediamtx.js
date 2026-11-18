@@ -18,6 +18,9 @@ export const hlsUrl = (path) => `${origin(HLS_PORT)}/${path}/index.m3u8`
 /** WHEP-эндпоинт WebRTC: задержка меньше секунды. */
 export const whepUrl = (path) => `${origin(WEBRTC_PORT)}/${path}/whep`
 
+/** Страница публикации из браузера, которую отдаёт сам MediaMTX. */
+export const publishUrl = (path) => `${origin(WEBRTC_PORT)}/${path}/publish`
+
 /** REST API MediaMTX. */
 export const apiUrl = (endpoint) => `${origin(API_PORT)}${endpoint}`
 

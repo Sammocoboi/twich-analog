@@ -11,6 +11,7 @@ import {
   hlsUrl,
   obsSettings,
   plural,
+  publishUrl,
   whepUrl,
 } from './lib/mediamtx'
 import './App.css'
@@ -158,15 +159,43 @@ export default function App() {
           </div>
 
           <section className="panel">
-            <h2 className="panel__title">Выйти в эфир из OBS</h2>
-            <p className="panel__text">
-              OBS → <strong>Настройки → Вещание → Сервис: Настраиваемый</strong>. Вставьте сервер и ключ —
-              MediaMTX создаст путь <code>{path}</code> сам, как только пойдёт первый кадр.
-            </p>
+            <h2 className="panel__title">Выйти в эфир</h2>
 
-            <div className="copy-list">
-              <CopyField label="Сервер" value={obs.server} />
-              <CopyField label="Ключ потока" value={obs.key} />
+            <div className="publish-option">
+              <h3 className="publish-option__title">
+                1. Из браузера — ничего устанавливать не нужно
+              </h3>
+              <p className="panel__text">
+                MediaMTX сам отдаёт страницу публикации. Откройте её, разрешите камеру и микрофон,
+                выберите видео-кодек <strong>H264</strong> (тогда будет работать и HLS) и нажмите{' '}
+                <strong>Publish</strong>.
+              </p>
+              <a
+                className="button"
+                href={publishUrl(path)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Открыть страницу публикации ↗
+              </a>
+              <p className="publish-option__hint">
+                Работает только на этом компьютере через <code>localhost</code>: браузер разрешает
+                камеру лишь на «безопасных» адресах. Для экрана (не камеры) нужен OBS portable или
+                ffmpeg.
+              </p>
+            </div>
+
+            <div className="publish-option">
+              <h3 className="publish-option__title">2. Из OBS (если получится поставить)</h3>
+              <p className="panel__text">
+                OBS → <strong>Настройки → Вещание → Сервис: Настраиваемый</strong>. Вставьте сервер
+                и ключ — MediaMTX создаст путь <code>{path}</code> сам, как только пойдёт первый кадр.
+              </p>
+
+              <div className="copy-list">
+                <CopyField label="Сервер" value={obs.server} />
+                <CopyField label="Ключ потока" value={obs.key} />
+              </div>
             </div>
 
             <div className="links">
@@ -187,7 +216,8 @@ export default function App() {
 
           {liveStreams.length === 0 ? (
             <p className="sidebar__empty">
-              Никто не стримит. Запустите OBS — канал появится здесь автоматически.
+              Никто не стримит. Запустите трансляцию — из браузера или OBS — канал появится здесь
+              автоматически.
             </p>
           ) : (
             <ul className="streams">
