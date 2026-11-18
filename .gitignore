@@ -3,3 +3,13 @@ venv/
 .env
 __pycache__/
 *.db
+
+# скачанный бинарник медиасервера (~57 МБ) и записи эфиров
+tools/
+recordings/
+
+# служебные файлы MediaMTX
+auto.key
+auto.crt
+mediamtx.log
+mediamtx.err.log
