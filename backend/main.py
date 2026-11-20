@@ -16,6 +16,7 @@ from sqlalchemy.orm import (Mapped,Session,mapped_column,DeclarativeBase,session
 from fastapi.middleware.cors import CORSMiddleware
 
 
+
 load_dotenv()
 SECRET_KEY = os.environ['JWT_SECRET_KEY']
 ALGORITHM="HS256"
@@ -71,7 +72,7 @@ class UserResponse(BaseModel):
     model_config=ConfigDict(from_attributes=True)
 
 class TokenResponse(BaseModel):
-    access_token:str
+    acces_token:str
     token_type:str
 
 # создание jwt 
@@ -119,7 +120,6 @@ def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:DbSession)-> 
 
     if user is None:
         raise error
-
     return user 
 
 Cuerrentuser = Annotated[UserORM,Depends(get_cerrent_user)]
@@ -135,13 +135,12 @@ async def lifespan(app:FastAPI):
 app = FastAPI(title="Authenfication API",version="1.0.0",lifespan=lifespan)
 
 
-
-#открыть все cors
+# ОТКРЫТЬ ВСЕ CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["*"],
     allow_credentials=True,
+    allow_methods=["*"],
     allow_headers=["*"]
 )
 
@@ -189,16 +188,17 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
         password_hash.verify(form.password,password_hash.hash("dummy"))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="неверный логин или пароль"
+            detail="неверный логин пароль",
+            headers={"WWW-Authenticate":"Bearer"}
         )
     if not password_hash.verify(form.password,user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="неверный логин или пароль",
+            detail="неверный логин пароль",
             headers={"WWW-Authenticate":"Bearer"}
         )
-    token = create_acces_token(user.id)
 
+    token = create_acces_token(user.id)
     return TokenResponse(
         access_token=token,
         token_type="bearer"
@@ -212,6 +212,5 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
 def get_profile(current_user:Cuerrentuser):
     return current_user
 
-
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True, host="127.0.0.1", port=8000)
+    uvicorn.run("main:app",host="127.0.0.1",port=8000,reload=True)
