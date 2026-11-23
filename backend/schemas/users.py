@@ -8,7 +8,10 @@ class UserCreate(BaseModel):
         max_length=128
     )
 
-class UserResponse(BaseModel):
+class UserLogin(UserCreate):
+    pass
+
+class UserSchema(BaseModel):
     id:int
     email:EmailStr
     model_config=ConfigDict(from_attributes=True)
