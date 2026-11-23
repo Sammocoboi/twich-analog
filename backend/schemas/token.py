@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class TokenResponse(BaseModel):
+class TokenSchema(BaseModel):
     access_token:str
     token_type:str

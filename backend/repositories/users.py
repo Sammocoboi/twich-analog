@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 class UserRepositories:
     def __init__(self,db:Session):
         self.db=db
-       
+    
     def create_by_email(self,email:str,password:str)->UserORM:
         user = UserORM(email=email,hashed_password=password)
         self.db.add(user)
