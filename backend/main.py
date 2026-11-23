@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordBearer,OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from pydantic import BaseModel,ConfigDict,EmailStr,Field
-from sqlalchemy import String,create_engine,select
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import (Mapped,Session,mapped_column,DeclarativeBase,sessionmaker)
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,50 +26,22 @@ oauth2_cheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 
 # база данных подлкючение создание 
-DATABASE_URL="sqlite:///./users.db"
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread":False}
-)
 
 
-SessionLocal = sessionmaker(
-    bind=engine,
-    autoflush=False
-)
 
 
-class Base(DeclarativeBase):
-    pass
 
-class UserORM(Base):
-    __tablename__="users"
 
-    id:Mapped[int] = mapped_column(primary_key=True)
-    email:Mapped[str] = mapped_column(String(320),unique=True,index=True)
-    hashed_password:Mapped[str] = mapped_column(String(255))
 
-def get_db():
-    with SessionLocal() as db:
-        yield db
+
+
+
 
 
 DbSession = Annotated[Session,Depends(get_db)]
 
 
 #Shecmy 
-class UserCreate(BaseModel):
-    email:EmailStr
-    password:str = Field(
-        min_length=8,
-        max_length=128
-    )
-
-class UserResponse(BaseModel):
-    id:int
-    email:EmailStr
-    model_config=ConfigDict(from_attributes=True)
 
 class TokenResponse(BaseModel):
     access_token:str
