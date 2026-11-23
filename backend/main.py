@@ -72,7 +72,7 @@ class UserResponse(BaseModel):
     model_config=ConfigDict(from_attributes=True)
 
 class TokenResponse(BaseModel):
-    acces_token:str
+    access_token:str
     token_type:str
 
 # создание jwt 

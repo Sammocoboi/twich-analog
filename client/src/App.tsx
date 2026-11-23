@@ -47,12 +47,38 @@ const logout = () => {
 }
 
 if (token && !user) return <div>Проверяем токен что вы не долбач</div>
-
+if (token && user) return(
+  <div>
+    <h1>ты в системе</h1>
+    <p>id:{user.id}</p>
+    <p>email: {user.email}</p>
+    <button onClick={logout}>выйти</button>
+  </div>
+)
 
 
 
   return (
     <>
+      <form action="" onSubmit={submit}>
+        <h1>STREAM пупа залупа</h1>
+        <div>
+          <button type='button' className={mode === "login" ? "active": ""} onClick={()=>{setMode('login');setError("");setNotice("")}}>
+            вход
+          </button>
+          <button type='button' className={mode === "register" ? "active": ""} onClick={()=>{setMode('register');setError("");setNotice("")}}>регистрация</button>
+
+
+        </div>
+        <label htmlFor="">Email</label>
+        <input type="email" required value={email} onChange={(e)=>setEmail(e.target.value)} placeholder='введите email'/>
+        <input type="password" required minLength={8} value={password} onChange={(e)=>setPassword(e.target.value)} placeholder='введите пароль'/>
+        <button className='submit' disabled={busy}> {busy ? "подожди":mode==="login" ? "войти":"создать аккаунт"}</button>
+        {error && <div>{error}</div>}
+        {notice && !error && <div>{notice}</div>}
+
+        
+      </form>
     </>
   )
 }
