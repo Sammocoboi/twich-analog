@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from jwt.exceptions import InvalidTokenError
 from schemas.token import TokenSchema
 import jwt
+from models.users import UserORM
+
+from schemas.token import TokenSchema
 from typing import Annotated
 from pwdlib import PasswordHash
 from fastapi.security import OAuth2PasswordBearer,OAuth2PasswordRequestForm
@@ -12,6 +15,7 @@ from datetime import datetime,timedelta,timezone
 from config.config import get_settings
 settings = get_settings()
 password_hash = PasswordHash.recommended()
+
 oauth2_cheme = OAuth2PasswordBearer(tokenUrl="/login")
 def create_acces_token(user_id:int)->str:
     expire = datetime.now(timezone.utc)+timedelta(
@@ -30,7 +34,7 @@ def create_acces_token(user_id:int)->str:
     return token
 
 
-def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:DbSession)-> UserORM:
+def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:Session)-> UserORM:
 
     error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -40,8 +44,8 @@ def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:DbSession)-> 
     try:
         payload = jwt.decode(
             token,
-            SECRET_KEY,
-            algorithms=[ALGORITHM],
+            settings.secret_key,
+            algorithms=[settings.algorithm],
             options={"require":["sub","exp"]}
         )
         user_id = int(payload["sub"])
@@ -54,6 +58,8 @@ def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:DbSession)-> 
     if user is None:
         raise error
     return user 
+
+Cuerrentuser = Annotated[UserORM,Depends(get_cerrent_user)]
 
 class UserService:
     def __init__(self,db:Session):
@@ -86,3 +92,12 @@ class UserService:
                 detail="неверный логин пароль",
                 headers={"WWW-Authenticate":"Bearer"}
             )
+
+        token = create_acces_token(user.id)
+
+        return TokenSchema(
+            access_token=token,
+            token_type="bearer"
+        )
+    def get_profile(current_user:Cuerrentuser):
+        return current_user

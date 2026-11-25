@@ -133,7 +133,7 @@ def login(, db: DbSession):
     "/me",
     response_model=UserResponse
 )
-def get_profile(current_user:Cuerrentuser):
+def get_profile():
     return current_user
 
 if __name__ == "__main__":

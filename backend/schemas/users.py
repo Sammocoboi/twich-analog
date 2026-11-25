@@ -9,6 +9,7 @@ class UserCreate(BaseModel):
     )
 
 class UserLogin(UserCreate):
+    id:int
     pass
 
 class UserSchema(BaseModel):
