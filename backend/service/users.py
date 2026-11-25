@@ -13,6 +13,7 @@ from fastapi.security import OAuth2PasswordBearer,OAuth2PasswordRequestForm
 from fastapi import HTTPException,status,Depends
 from datetime import datetime,timedelta,timezone
 from config.config import get_settings
+from db.db import get_db
 settings = get_settings()
 password_hash = PasswordHash.recommended()
 
@@ -34,7 +35,7 @@ def create_acces_token(user_id:int)->str:
     return token
 
 
-def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:Session)-> UserORM:
+def get_cerrent_user(token:Annotated[str,Depends(oauth2_cheme)],db:Session = Depends(get_db))-> UserORM:
 
     error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

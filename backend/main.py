@@ -4,7 +4,7 @@ import os
 
 
 
-
+from models.base import Base
 from contextlib import asynccontextmanager
 
 
@@ -16,9 +16,9 @@ from sqlalchemy.orm import (Mapped,Session,mapped_column,DeclarativeBase,session
 from fastapi.middleware.cors import CORSMiddleware
 
 
+from db.db import engine
 
-
-
+from api.router.user import router as userrouter
 
 # база данных подлкючение создание 
 
@@ -33,7 +33,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
-DbSession = Annotated[Session,Depends(get_db)]
+
 
 
 #Shecmy 
@@ -51,7 +51,6 @@ DbSession = Annotated[Session,Depends(get_db)]
 
 
 
-Cuerrentuser = Annotated[UserORM,Depends(get_cerrent_user)]
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
@@ -62,7 +61,7 @@ async def lifespan(app:FastAPI):
 
 
 app = FastAPI(title="Authenfication API",version="1.0.0",lifespan=lifespan)
-
+app.include_router(router=userrouter)
 
 # ОТКРЫТЬ ВСЕ CORS
 app.add_middleware(
@@ -77,64 +76,6 @@ app.add_middleware(
 def home():
     return "fsdsfd"
 
-@app.post("/register",response_model=UserResponse,status_code=status.HTTP_201_CREATED)
-def register(data:UserCreate, db:DbSession):
-    
-
-   
-    if existing_user is not None:
-        raise HTTPException(
-            status_code=409,
-            detail="email сущ"
-        )
-    
-    hashed_password=password_hash.hash(data.password)
-    new_user = UserORM(
-        email=email,
-        hashed_password = hashed_password
-    )
-    db.add(new_user)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="Email есть"
-        )from None
-
-    db.refresh(new_user)
-
-    return new_user
-
-
-@app.post("/login", response_model=TokenResponse)
-def login(, db: DbSession):
-    email = form.username.strip().lower()
-    user = db.scalar(select(UserORM).where(UserORM.email==email))
-
-    if user is None:
-        
-    if not password_hash.verify(form.password,user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="неверный логин пароль",
-            headers={"WWW-Authenticate":"Bearer"}
-        )
-
-    token = create_acces_token(user.id)
-    return TokenResponse(
-        access_token=token,
-        token_type="bearer"
-    )
-
-
-@app.get(
-    "/me",
-    response_model=UserResponse
-)
-def get_profile():
-    return current_user
 
 if __name__ == "__main__":
     uvicorn.run("main:app",host="127.0.0.1",port=8000,reload=True)

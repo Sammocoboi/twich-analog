@@ -6,7 +6,7 @@ from config.config import get_settings
 settings = get_settings()
 engine = create_engine(
     settings.db_url,
-    settings.connect_args
+    connect_args=settings.connect_args,
 )
 
 
