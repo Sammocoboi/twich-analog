@@ -37,4 +37,4 @@ export const register = (email:string,password:string) =>
 export const login = (email:string,password:string) =>
     api.post<Token>("/user/login",new URLSearchParams({username:email,password})).then((r)=>r.data);
 
-export const me = () =>api.get<User>("/me").then((r) => r.data);
+export const me = () =>api.get<User>("/user/me").then((r) => r.data);
