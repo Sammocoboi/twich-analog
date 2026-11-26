@@ -5,6 +5,8 @@ from service.users import UserService,get_cerrent_user
 from models.users import UserORM
 from schemas.users import UserCreate,UserLogin,UserSchema
 from typing import Annotated
+from schemas.token import TokenSchema
+from fastapi.security import OAuth2PasswordRequestForm
 from ..dependecies import get_user_service
 router = APIRouter(prefix="/user",tags=["user"])
 
@@ -20,7 +22,7 @@ def register(register_user:UserCreate,users:UserService=Depends(get_user_service
     print(users)
     return users.create_user(register_user)
 
-@router.post("/login",response_model=UserSchema)
-def login(login_user:UserLogin,users:UserService=Depends(get_user_service))->UserSchema:
-    return users.login_user(login_user)
+@router.post("/login",response_model=TokenSchema)
+def login(form: OAuth2PasswordRequestForm = Depends(),users:UserService=Depends(get_user_service))->TokenSchema:
+    return users.login_user(form)
 

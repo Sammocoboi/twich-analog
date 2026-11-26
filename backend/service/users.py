@@ -85,8 +85,8 @@ class UserService:
 
         return UserSchema.model_validate(new_user)
 
-    def login_user(self,user:UserLogin,form: Annotated[OAuth2PasswordRequestForm, Depends()]) -> TokenSchema:
-        email = user.email.lower().strip()
+    def login_user(self,form: OAuth2PasswordRequestForm) -> TokenSchema:
+        email = form.username.strip().lower()
         users=self.user_repository.get_user_is_email(email=email)
         if users is None:
             password_hash.verify(form.password,password_hash.hash("dummy"))
@@ -95,7 +95,12 @@ class UserService:
                 detail="неверный логин пароль",
                 headers={"WWW-Authenticate":"Bearer"}
             )
-        
+        if not password_hash.verify(form.password, users.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="неверный логин или пароль",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         token = create_acces_token(users.id)
 
         return TokenSchema(
