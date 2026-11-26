@@ -11,6 +11,7 @@ class Settings:
     db_url:str
     secret_key:str
     algorithm:str
+
     acess_token_expire_minutes:int
   
     connect_args:dict

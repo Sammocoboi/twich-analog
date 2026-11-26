@@ -71,6 +71,7 @@ class UserService:
     
     def create_user(self,user:UserCreate)->UserSchema:
         email = str(user.email).strip().lower()
+        print(email)
         if self.user_repository.get_user_is_email(email=user.email) is not None:
             raise HTTPException(
                     status_code=409,
@@ -79,10 +80,10 @@ class UserService:
                     )
         
         password_hashed = password_hash.hash(user.password)
-        self.user_repository.create_by_email(email=email,password=password_hashed)
+        new_user = self.user_repository.create_by_email(email=email,password=password_hashed)
         self.db.commit()
 
-        return UserSchema.model_validate(user)
+        return UserSchema.model_validate(new_user)
 
     def login_user(self,user:UserLogin,form: Annotated[OAuth2PasswordRequestForm, Depends()]) -> TokenSchema:
         email = user.email.lower().strip()

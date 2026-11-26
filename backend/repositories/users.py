@@ -12,11 +12,10 @@ class UserRepositories:
         user = UserORM(email=email,hashed_password=password)
         self.db.add(user)
         self.db.commit()
-        self.db.refresh(user)
+       
         return user
     
-    def get_user_is_email(self,email:str)->UserORM:
-       
-        return self.db.get(UserORM,email)
+    def get_user_is_email(self,email:str)->UserORM|None:
+        return self.db.scalar(select(UserORM).where(UserORM.email==email))
         
     
