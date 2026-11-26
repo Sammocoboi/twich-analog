@@ -16,6 +16,8 @@ def get_profile(current_user:Cuerrentuser):
 
 @router.post("/register",response_model=UserSchema)
 def register(register_user:UserCreate,users:UserService=Depends(get_user_service))->UserSchema:
+    print(register_user)
+    print(users)
     return users.create_user(register_user)
 
 @router.post("/login",response_model=UserSchema)

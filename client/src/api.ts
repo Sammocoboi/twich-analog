@@ -31,10 +31,10 @@ export type User = {id:number;email:string};
 export type Token = {access_token:string,token_type:string}
 
 export const register = (email:string,password:string) =>
-    api.post<User>("/register",{email,password}).then((r) => r.data);
+    api.post<User>("/user/register",{email,password}).then((r) => r.data);
 
 
 export const login = (email:string,password:string) =>
-    api.post<Token>("/login",new URLSearchParams({username:email,password})).then((r)=>r.data);
+    api.post<Token>("/user/login",new URLSearchParams({username:email,password})).then((r)=>r.data);
 
 export const me = () =>api.get<User>("/me").then((r) => r.data);

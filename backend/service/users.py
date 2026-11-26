@@ -87,15 +87,16 @@ class UserService:
 
     def login_user(self,user:UserLogin,form: Annotated[OAuth2PasswordRequestForm, Depends()]) -> TokenSchema:
         email = user.email.lower().strip()
-        if self.user_repository.get_user_is_email(email=email) is None:
+        users=self.user_repository.get_user_is_email(email=email)
+        if users is None:
             password_hash.verify(form.password,password_hash.hash("dummy"))
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="неверный логин пароль",
                 headers={"WWW-Authenticate":"Bearer"}
             )
-
-        token = create_acces_token(user.id)
+        
+        token = create_acces_token(users.id)
 
         return TokenSchema(
             access_token=token,
