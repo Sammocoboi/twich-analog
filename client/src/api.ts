@@ -1,40 +1,29 @@
-// ВСЕ ЗАПРОСЫ К БД
-import axios, { AxiosError } from "axios"
+import type { TokenResponse, User } from "./types";
 
-export const api = axios.create({
-    baseURL:"http://127.0.0.1:8000",
-})
+const API_BASE = import.meta.env.VITE_API_BASE;
 
-// токен цеплялся ко всем запросам 
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if(token) config.headers.Authorization = `Bearer ${token}`;
-    return config
-})
+/** OAuth2PasswordRequestForm требует application/x-www-form-urlencoded */
+export async function login(email: string, password: string): Promise<TokenResponse> {
+  const body = new URLSearchParams();
+  body.append("username", email); // в вашем FastAPI username = email
+  body.append("password", password);
 
-// У нас есть detail ошибки на Fastapi и заменим их в клиенте 
+  const res = await fetch(`${API_BASE}/user/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("Неверный email или пароль");
+    throw new Error(`Ошибка входа: ${res.status}`);
+  }
+  return (await res.json()) as TokenResponse;
+}
 
-api.interceptors.request.use((res)=>res,
-    (error:AxiosError<{detail:unknown}>) => {
-        if (!error.response) {
-            return Promise.reject(new Error("Бекенд недоступен"))
-        };
-        const detail = error.response.data?.detail;
-        let message = `Ошибка ${error.response.status}`;
-        if (typeof detail == "string") message = detail;
-        else if (Array.isArray(detail))
-            message = detail.map((e:{msg:string}) => e.msg).join(';');
-        return Promise.reject(new Error(message))
-    }
-);
-export type User = {id:number;email:string};
-export type Token = {access_token:string,token_type:string}
-
-export const register = (email:string,password:string) =>
-    api.post<User>("/user/register",{email,password}).then((r) => r.data);
-
-
-export const login = (email:string,password:string) =>
-    api.post<Token>("/user/login",new URLSearchParams({username:email,password})).then((r)=>r.data);
-
-export const me = () =>api.get<User>("/user/me").then((r) => r.data);
+export async function getMe(token: string): Promise<User> {
+  const res = await fetch(`${API_BASE}/user/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Не удалось получить профиль: ${res.status}`);
+  return (await res.json()) as User;
+}
