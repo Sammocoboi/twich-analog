@@ -14,6 +14,6 @@ class Settings:
 
     acess_token_expire_minutes:int
   
-    connect_args:dict
+    connect_args:dict   
 def get_settings():
     return Settings(db_url="sqlite:///./users.db",connect_args={"check_same_thread":False},secret_key=SECRET_KEY,algorithm=ALGORITHM,acess_token_expire_minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
